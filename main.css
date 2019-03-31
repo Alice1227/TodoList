@@ -12,6 +12,7 @@ body {
   background-color: var(--pink);
   /* background-image: linear-gradient(to bottom, #ffdce3, #f8e0f1, #ede5fb, #e2ebff, #daf0fe); */
   color: var(--black);
+  font-family: Josefin Sans, Noto Sans TC, sans-seri;
 }
 
 #add-todo>.todo {
