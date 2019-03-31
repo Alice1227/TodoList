@@ -1,0 +1,74 @@
+:root {
+  --pink: #ffdce3;
+  --blue: #daf0fe;
+  --white: #fff;
+  --black: #3E4147;
+  --grey: #888;
+}
+
+body {
+  width: 100vw;
+  height: 100vh;
+  background-color: var(--pink);
+  /* background-image: linear-gradient(to bottom, #ffdce3, #f8e0f1, #ede5fb, #e2ebff, #daf0fe); */
+  color: var(--black);
+}
+
+#add-todo>.todo {
+  background-color: var(--blue);
+  margin: 30px 0;
+}
+
+.todo {
+  display: flex;
+  align-items: center;
+  background-color: var(--white);
+  margin: 10px 0;
+  padding: 15px 5px;
+  box-shadow: 0px 3px 5px 1px rgba(0, 0, 0, 0.1);
+  border-radius: 3px;
+}
+
+.todo>.icon-block {
+  flex: 2;
+}
+
+.todo>.icon-block>i {
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--grey);
+}
+
+.todo>.icon-block>.fa-plus {
+  color: var(--black);
+}
+
+.todo>.add-content-block {
+  flex: 10;
+  cursor: text;
+  word-break: break-all;
+}
+
+.todo>.add-content-block:empty::before {
+  color: var(--grey);
+  content: attr(placeholder);
+}
+
+.todo>.add-content-block:focus, .todo>.content-block:focus {
+  outline: 0;
+}
+
+.todo>.icon-block>.fa-check {
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--grey);
+  line-height: 18px;
+  border-radius: 2px;
+  color: var(--white);
+}
+
+.todo>.content-block {
+  flex: 6;
+  cursor: default;
+  word-break: break-all;
+}
