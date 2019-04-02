@@ -1,75 +1,113 @@
 :root {
-  --pink: #ffdce3;
-  --blue: #daf0fe;
-  --white: #fff;
-  --black: #3E4147;
-  --grey: #888;
+  --blue: #A0B1DE;
+  --dark-blue: #767892;
+  --white: #FCFDFD;
+}
+
+::-webkit-scrollbar {
+  width: 0;
+}
+
+::-webkit-scrollbar-track, ::-webkit-scrollbar-thumb, ::-webkit-scrollbar-thumb:hover {
+  background: none;
 }
 
 body {
   width: 100vw;
   height: 100vh;
-  background-color: var(--pink);
-  /* background-image: linear-gradient(to bottom, #ffdce3, #f8e0f1, #ede5fb, #e2ebff, #daf0fe); */
-  color: var(--black);
-  font-family: Josefin Sans, Noto Sans TC, sans-seri;
-}
-
-#add-todo>.todo {
   background-color: var(--blue);
-  margin: 30px 0;
-}
-
-.todo {
+  color: var(--dark-blue);
+  font-family: Josefin Sans, Noto Sans TC, sans-seri;
   display: flex;
   align-items: center;
+}
+
+.todo-card {
   background-color: var(--white);
-  margin: 10px 0;
-  padding: 15px 5px;
+  border-radius: 5px;
   box-shadow: 0px 3px 5px 1px rgba(0, 0, 0, 0.1);
-  border-radius: 3px;
+  padding: 20px 40px;
 }
 
-.todo>.icon-block {
-  flex: 2;
+.todo-card>h5 {
+  border-bottom: 1px solid var(--dark-blue);
 }
 
-.todo>.icon-block>i {
-  cursor: pointer;
+.todo-card .row {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.todo-card .row>div {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.todo-card .fas {
+  width: 22px;
+  height: 22px;
+  line-height: 22px;
   font-size: 14px;
-  color: var(--grey);
+  cursor: pointer;
 }
 
-.todo>.icon-block>.fa-plus {
-  color: var(--black);
+.todo-card .add-todo {
+  background-color: var(--dark-blue);
+  border-radius: 3px;
+  padding: 6px 0;
+  margin: 25px 0;
+  color: var(--white);
 }
 
-.todo>.add-content-block {
-  flex: 10;
-  cursor: text;
+.todo-card .add-todo #add-content {
   word-break: break-all;
+  cursor: text;
 }
 
-.todo>.add-content-block:empty::before {
-  color: var(--grey);
+.todo-card .add-todo #add-content:empty::before {
   content: attr(placeholder);
 }
 
-.todo>.add-content-block:focus, .todo>.content-block:focus {
+.todo-card .add-todo #add-content:focus, .todo-card #todo-list .todo-item .todo-content:focus {
   outline: 0;
 }
 
-.todo>.icon-block>.fa-check {
-  width: 20px;
-  height: 20px;
-  border: 1px solid var(--grey);
+.todo-card .select-btn {
+  width: 30%;
+  border: 1px solid var(--dark-blue);
+  border-radius: 3px;
+  padding: 2px;
+  cursor: pointer;
+}
+
+.todo-card #todo-list {
+  height: 35vh;
+  overflow: auto;
+  margin-top: 15px;
+}
+
+.todo-card #todo-list .todo-item {
+  color: var(--blue);
+  margin-bottom: 15px;
+}
+
+.todo-card #todo-list .todo-item:last-child {
+  margin-bottom: 0;
+}
+
+.todo-card #todo-list .todo-item .fa-check {
+  border: 2px solid var(--blue);
   line-height: 18px;
   border-radius: 2px;
   color: var(--white);
 }
 
-.todo>.content-block {
-  flex: 6;
-  cursor: default;
+.todo-card #todo-list .todo-item .checked {
+  background-color: var(--blue);
+}
+
+.todo-card #todo-list .todo-item .todo-content {
+  color: var(--dark-blue);
   word-break: break-all;
+  cursor: default;
 }

@@ -1,12 +1,3 @@
-// let d = new Date();
-// let dateString = d.toLocaleString();
-//
-// function Todo(checked, content, date) {
-//   this.checked = checked;
-//   this.content = content;
-//   this.date = date;
-// }
-
 $(function() {
   $("#add-content").focus();
 
@@ -14,65 +5,126 @@ $(function() {
   $("#add-btn").on("click", function() {
     let addContent = $("#add-content").text().trim();
 
-    if (addContent !== "") {
-      $("#todo-list").append(generateTodo(addContent));
+    if (addContent != "") {
+      db.collection("todos").add({
+        content: addContent,
+        checked: false
+      });
+
       $("#add-content").text("");
     }
   });
 
+  //show all todos
+  $("#show-all-btn").on("click", function() {
+    db.collection("todos").get().then(function(snapshot) {
+      $("#todo-list").empty();
+      snapshot.docs.forEach(function(doc) {
+        renderTodo(doc);
+      });
+    });
+  });
+
+  //show undone todos
+  $("#show-undone-btn").on("click", function() {
+    db.collection("todos").where("checked", "==", false).get().then(function(snapshot) {
+      $("#todo-list").empty();
+      snapshot.docs.forEach(function(doc) {
+        renderTodo(doc);
+      });
+    });
+  });
+
+  //show done todos
+  $("#show-done-btn").on("click", function() {
+    db.collection("todos").where("checked", "==", true).get().then(function(snapshot) {
+      $("#todo-list").empty();
+      snapshot.docs.forEach(function(doc) {
+        renderTodo(doc);
+      });
+    });
+  });
+
   //check todo
   $(document).on("click", ".fa-check", function() {
-    let checked = $(this).data("checked");
+    let id = $(this).parents(".todo-item").attr("data-id");
+    let checked = !JSON.parse($(this).attr("data-checked"));
+    db.collection("todos").doc(id).update({
+      checked: checked
+    });
 
     if (checked) {
-      $(this).css("color", "var(--white)");
+      $(this).addClass("checked");
     } else {
-      $(this).css("color", "var(--black)");
+      $(this).removeClass("checked");
     }
-
-    $(this).data("checked", !checked);
-    $(this).attr("data-checked", !checked);
+    $(this).attr("data-checked", checked.toString());
   });
 
   //edit todo
   $(document).on("click", ".fa-pen", function() {
-    let editContent = $(this).parent().siblings(".content-block");
-
-    editContent.attr("contenteditable", true);
-    editContent.css("cursor", "text");
-    editContent.focus();
+    let content = $(this).parents(".todo-item").find(".todo-content");
+    content.attr("contenteditable", "true");
+    content.css("cursor", "text");
+    content.focus();
   });
 
   //finish-editing todo
-  $(document).on("blur", ".content-block", function() {
-    $(this).text($(this).text());
-    $(this).attr("contenteditable", false);
+  $(document).on("blur", ".todo-content", function() {
+    let id = $(this).parents(".todo-item").attr("data-id");
+    let editContent = $(this).text().trim();
+    db.collection("todos").doc(id).update({
+      content: editContent
+    });
+
+    $(this).text(editContent);
+    $(this).attr("contenteditable", "false");
     $(this).css("cursor", "default");
   });
 
   //delete todo
   $(document).on("click", ".fa-trash", function() {
-    $(this).parents(".todo").remove();
+    let id = $(this).parents(".todo-item").attr("data-id");
+    db.collection("todos").doc(id).delete();
+
+    $(`.todo-item[data-id=${id}]`).remove();
   });
 });
 
-function generateTodo(content) {
+function renderTodo(doc) {
   let todoHtml = "";
-
-  todoHtml += '<div class="todo">';
-  todoHtml += '<div class="icon-block text-center">';
-  todoHtml += '<i class="fas fa-check" data-checked="false"></i>';
+  todoHtml += `<div class="todo-item" data-id="${doc.id}">`;
+  todoHtml += '<div class="row">';
+  todoHtml += '<div class="col-2 d-flex align-items-center text-center">';
+  if (doc.data().checked) {
+    todoHtml += `<i class="fas fa-check checked" data-checked="${doc.data().checked}"></i>`;
+  } else {
+    todoHtml += `<i class="fas fa-check" data-checked="${doc.data().checked}"></i>`;
+  }
   todoHtml += '</div>';
-  todoHtml += '<div class="content-block" contenteditable="false">'
-  todoHtml += content;
+  todoHtml += '<div class="col-7 d-flex align-items-center">';
+  todoHtml += '<div class="todo-content" contenteditable="false">';
+  todoHtml += doc.data().content;
   todoHtml += '</div>';
-  todoHtml += '<div class="icon-block text-right">';
+  todoHtml += '</div>';
+  todoHtml += '<div class="col-2 d-flex align-items-center justify-content-end text-center">';
   todoHtml += '<i class="fas fa-pen"></i>';
   todoHtml += '</div>';
-  todoHtml += '<div class="icon-block text-center">';
+  todoHtml += '<div class="col-1 d-flex align-items-center justify-content-end text-right">';
   todoHtml += '<i class="fas fa-trash"></i>';
   todoHtml += '</div>';
   todoHtml += '</div>';
+  todoHtml += '</div>';
 
-  return todoHtml;
+  $("#todo-list").append(todoHtml);
 }
+
+//real-time listener
+db.collection("todos").onSnapshot(function(snapshot) {
+  let changes = snapshot.docChanges();
+  changes.forEach(function(change) {
+    if (change.type == "added") {
+      renderTodo(change.doc);
+    }
+  });
+});
