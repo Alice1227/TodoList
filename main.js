@@ -10,39 +10,8 @@ $(function() {
         content: addContent,
         checked: false
       });
-
       $("#add-content").text("");
     }
-  });
-
-  //show all todos
-  $("#show-all-btn").on("click", function() {
-    db.collection("todos").get().then(function(snapshot) {
-      $("#todo-list").empty();
-      snapshot.docs.forEach(function(doc) {
-        renderTodo(doc);
-      });
-    });
-  });
-
-  //show undone todos
-  $("#show-undone-btn").on("click", function() {
-    db.collection("todos").where("checked", "==", false).get().then(function(snapshot) {
-      $("#todo-list").empty();
-      snapshot.docs.forEach(function(doc) {
-        renderTodo(doc);
-      });
-    });
-  });
-
-  //show done todos
-  $("#show-done-btn").on("click", function() {
-    db.collection("todos").where("checked", "==", true).get().then(function(snapshot) {
-      $("#todo-list").empty();
-      snapshot.docs.forEach(function(doc) {
-        renderTodo(doc);
-      });
-    });
   });
 
   //check todo
@@ -58,6 +27,7 @@ $(function() {
     } else {
       $(this).removeClass("checked");
     }
+
     $(this).attr("data-checked", checked.toString());
   });
 
@@ -69,7 +39,7 @@ $(function() {
     content.focus();
   });
 
-  //finish-editing todo
+  //finish editing todo
   $(document).on("blur", ".todo-content", function() {
     let id = $(this).parents(".todo-item").attr("data-id");
     let editContent = $(this).text().trim();
@@ -88,6 +58,65 @@ $(function() {
     db.collection("todos").doc(id).delete();
 
     $(`.todo-item[data-id=${id}]`).remove();
+  });
+
+  //disable change line in content
+  $(document).on("keypress", "#add-content, .todo-content", function(event) {
+    if (event.keyCode === 13) {
+      return false;
+    }
+  });
+
+  //press enter to send/finish editing todo
+  $(document).on("keyup", "#add-content, .todo-content", function(event) {
+    if (event.keyCode === 13) {
+      event.preventDefault();
+
+      if (event.target.id == "add-content") {
+        $("#add-btn").click();
+      } else {
+        $(this).blur();
+      }
+    }
+  });
+
+  //show all todos
+  $("#show-all-btn").on("click", function() {
+    $(".selected").removeClass("selected");
+    $(this).addClass("selected");
+
+    db.collection("todos").get().then(function(snapshot) {
+      $("#todo-list").empty();
+      snapshot.docs.forEach(function(doc) {
+        renderTodo(doc);
+      });
+    });
+  });
+
+  //show undone todos
+  $("#show-undone-btn").on("click", function() {
+    $(".selected").removeClass("selected");
+    $(this).addClass("selected");
+
+    db.collection("todos").where("checked", "==", false).get().then(function(snapshot) {
+      $("#todo-list").empty();
+      snapshot.docs.forEach(function(doc) {
+        renderTodo(doc);
+      });
+    });
+  });
+
+  //show done todos
+  $("#show-done-btn").on("click", function() {
+    $(".selected").removeClass("selected");
+    $(this).addClass("selected");
+
+    db.collection("todos").where("checked", "==", true).get().then(function(snapshot) {
+      $("#todo-list").empty();
+      snapshot.docs.forEach(function(doc) {
+        renderTodo(doc);
+      });
+    });
   });
 });
 
@@ -116,10 +145,10 @@ function renderTodo(doc) {
   todoHtml += '</div>';
   todoHtml += '</div>';
 
-  $("#todo-list").append(todoHtml);
+  $("#todo-list").prepend(todoHtml);
 }
 
-//real-time listener
+//db real-time listener
 db.collection("todos").onSnapshot(function(snapshot) {
   let changes = snapshot.docChanges();
   changes.forEach(function(change) {

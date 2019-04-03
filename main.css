@@ -72,7 +72,11 @@ body {
   outline: 0;
 }
 
-.todo-card .select-btn {
+.todo-card .select-todo {
+  margin-bottom: 15px;
+}
+
+.todo-card .select-todo .select-btn {
   width: 30%;
   border: 1px solid var(--dark-blue);
   border-radius: 3px;
@@ -80,10 +84,15 @@ body {
   cursor: pointer;
 }
 
+.todo-card .select-todo .selected {
+  border-color: var(--white);
+  background-color: var(--blue);
+  color: var(--white);
+}
+
 .todo-card #todo-list {
   height: 35vh;
   overflow: auto;
-  margin-top: 15px;
 }
 
 .todo-card #todo-list .todo-item {
@@ -96,14 +105,14 @@ body {
 }
 
 .todo-card #todo-list .todo-item .fa-check {
-  border: 2px solid var(--blue);
+  border: 1.5px solid var(--blue);
   line-height: 18px;
   border-radius: 2px;
   color: var(--white);
 }
 
 .todo-card #todo-list .todo-item .checked {
-  background-color: var(--blue);
+  color: var(--blue);
 }
 
 .todo-card #todo-list .todo-item .todo-content {
