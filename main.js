@@ -1,3 +1,5 @@
+const date = new Date();
+
 $(function() {
   $("#add-content").focus();
 
@@ -8,7 +10,8 @@ $(function() {
     if (addContent != "") {
       db.collection("todos").add({
         content: addContent,
-        checked: false
+        checked: false,
+        date: date
       });
       $("#add-content").text("");
     }
@@ -85,7 +88,7 @@ $(function() {
     $(".selected").removeClass("selected");
     $(this).addClass("selected");
 
-    db.collection("todos").get().then(function(snapshot) {
+    db.collection("todos").orderBy("date").get().then(function(snapshot) {
       $("#todo-list").empty();
       snapshot.docs.forEach(function(doc) {
         renderTodo(doc);
@@ -98,7 +101,7 @@ $(function() {
     $(".selected").removeClass("selected");
     $(this).addClass("selected");
 
-    db.collection("todos").where("checked", "==", false).get().then(function(snapshot) {
+    db.collection("todos").where("checked", "==", false).orderBy("date").get().then(function(snapshot) {
       $("#todo-list").empty();
       snapshot.docs.forEach(function(doc) {
         renderTodo(doc);
@@ -111,7 +114,7 @@ $(function() {
     $(".selected").removeClass("selected");
     $(this).addClass("selected");
 
-    db.collection("todos").where("checked", "==", true).get().then(function(snapshot) {
+    db.collection("todos").where("checked", "==", true).orderBy("date").get().then(function(snapshot) {
       $("#todo-list").empty();
       snapshot.docs.forEach(function(doc) {
         renderTodo(doc);
@@ -149,7 +152,7 @@ function renderTodo(doc) {
 }
 
 //db real-time listener
-db.collection("todos").onSnapshot(function(snapshot) {
+db.collection("todos").orderBy("date").onSnapshot(function(snapshot) {
   let changes = snapshot.docChanges();
   changes.forEach(function(change) {
     if (change.type == "added") {
