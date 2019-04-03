@@ -148,7 +148,7 @@ function renderTodo(doc) {
   todoHtml += '</div>';
   todoHtml += '</div>';
 
-  $("#todo-list").prepend(todoHtml);
+  $("#todo-list").append(todoHtml);
 }
 
 //db real-time listener
