@@ -72,11 +72,7 @@ body {
   outline: 0;
 }
 
-.todo-card .select-todo {
-  margin-bottom: 15px;
-}
-
-.todo-card .select-todo .select-btn {
+.todo-card .select-todo div {
   width: 30%;
   border: 1px solid var(--dark-blue);
   border-radius: 3px;
@@ -93,6 +89,7 @@ body {
 .todo-card #todo-list {
   height: 35vh;
   overflow: auto;
+  margin: 15px 0;
 }
 
 .todo-card #todo-list .todo-item {
@@ -119,4 +116,10 @@ body {
   color: var(--dark-blue);
   word-break: break-all;
   cursor: default;
+}
+
+.todo-card .delete-all-btn {
+  text-decoration: underline;
+  color: var(--blue);
+  cursor: pointer;
 }

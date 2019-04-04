@@ -1,11 +1,10 @@
-const date = new Date();
-
 $(function() {
   $("#add-content").focus();
 
   //add todo
   $("#add-btn").on("click", function() {
     let addContent = $("#add-content").text().trim();
+    let date = new Date();
 
     if (addContent != "") {
       db.collection("todos").add({
@@ -13,25 +12,37 @@ $(function() {
         checked: false,
         date: date
       });
+
       $("#add-content").text("");
     }
   });
 
   //check todo
   $(document).on("click", ".fa-check", function() {
-    let id = $(this).parents(".todo-item").attr("data-id");
-    let checked = !JSON.parse($(this).attr("data-checked"));
-    db.collection("todos").doc(id).update({
-      checked: checked
+    let that = $(this);
+    let id = that.parents(".todo-item").attr("data-id");
+    let selectedBtnId = $(".selected").attr("id");
+
+    db.collection("todos").doc(id).get().then(function(doc) {
+      let checked = !doc.data().checked;
+      db.collection("todos").doc(id).update({
+        checked: checked
+      });
+
+      if (checked) {
+        that.addClass("checked");
+
+        if (selectedBtnId == "show-undone-btn") {
+          that.parents(".todo-item").fadeOut(1000);
+        }
+      } else {
+        that.removeClass("checked");
+
+        if (selectedBtnId == "show-done-btn") {
+          that.parents(".todo-item").fadeOut(1000);
+        }
+      }
     });
-
-    if (checked) {
-      $(this).addClass("checked");
-    } else {
-      $(this).removeClass("checked");
-    }
-
-    $(this).attr("data-checked", checked.toString());
   });
 
   //edit todo
@@ -73,8 +84,6 @@ $(function() {
   //press enter to send/finish editing todo
   $(document).on("keyup", "#add-content, .todo-content", function(event) {
     if (event.keyCode === 13) {
-      event.preventDefault();
-
       if (event.target.id == "add-content") {
         $("#add-btn").click();
       } else {
@@ -85,6 +94,7 @@ $(function() {
 
   //show all todos
   $("#show-all-btn").on("click", function() {
+    $(".delete-all-btn").text("Delete All Todos");
     $(".selected").removeClass("selected");
     $(this).addClass("selected");
 
@@ -98,6 +108,7 @@ $(function() {
 
   //show undone todos
   $("#show-undone-btn").on("click", function() {
+    $(".delete-all-btn").text("Delete All Undone Todos");
     $(".selected").removeClass("selected");
     $(this).addClass("selected");
 
@@ -111,6 +122,7 @@ $(function() {
 
   //show done todos
   $("#show-done-btn").on("click", function() {
+    $(".delete-all-btn").text("Delete All Done Todos");
     $(".selected").removeClass("selected");
     $(this).addClass("selected");
 
@@ -121,34 +133,44 @@ $(function() {
       });
     });
   });
+
+  //delete all todos in specific section
+  $(".delete-all-btn").on("click", function() {
+    $(".todo-item").each(function() {
+      db.collection("todos").doc($(this).attr("data-id")).delete();
+
+      $(`.todo-item[data-id=${$(this).attr("data-id")}]`).remove();
+    })
+  });
 });
 
+//render todo-item html
 function renderTodo(doc) {
-  let todoHtml = "";
-  todoHtml += `<div class="todo-item" data-id="${doc.id}">`;
-  todoHtml += '<div class="row">';
-  todoHtml += '<div class="col-2 d-flex align-items-center text-center">';
+  let todoItem = "";
+  todoItem += `<div class="todo-item" data-id="${doc.id}">`;
+  todoItem += '<div class="row">';
+  todoItem += '<div class="col-2 d-flex align-items-center text-center">';
   if (doc.data().checked) {
-    todoHtml += `<i class="fas fa-check checked" data-checked="${doc.data().checked}"></i>`;
+    todoItem += '<i class="fas fa-check checked"></i>';
   } else {
-    todoHtml += `<i class="fas fa-check" data-checked="${doc.data().checked}"></i>`;
+    todoItem += '<i class="fas fa-check"></i>';
   }
-  todoHtml += '</div>';
-  todoHtml += '<div class="col-7 d-flex align-items-center">';
-  todoHtml += '<div class="todo-content" contenteditable="false">';
-  todoHtml += doc.data().content;
-  todoHtml += '</div>';
-  todoHtml += '</div>';
-  todoHtml += '<div class="col-2 d-flex align-items-center justify-content-end text-center">';
-  todoHtml += '<i class="fas fa-pen"></i>';
-  todoHtml += '</div>';
-  todoHtml += '<div class="col-1 d-flex align-items-center justify-content-end text-right">';
-  todoHtml += '<i class="fas fa-trash"></i>';
-  todoHtml += '</div>';
-  todoHtml += '</div>';
-  todoHtml += '</div>';
+  todoItem += '</div>';
+  todoItem += '<div class="col-7 d-flex align-items-center">';
+  todoItem += '<div class="todo-content" contenteditable="false">';
+  todoItem += doc.data().content;
+  todoItem += '</div>';
+  todoItem += '</div>';
+  todoItem += '<div class="col-2 d-flex align-items-center justify-content-end text-center">';
+  todoItem += '<i class="fas fa-pen"></i>';
+  todoItem += '</div>';
+  todoItem += '<div class="col-1 d-flex align-items-center justify-content-end text-right">';
+  todoItem += '<i class="fas fa-trash"></i>';
+  todoItem += '</div>';
+  todoItem += '</div>';
+  todoItem += '</div>';
 
-  $("#todo-list").append(todoHtml);
+  $("#todo-list").append(todoItem);
 }
 
 //db real-time listener
@@ -156,7 +178,9 @@ db.collection("todos").orderBy("date").onSnapshot(function(snapshot) {
   let changes = snapshot.docChanges();
   changes.forEach(function(change) {
     if (change.type == "added") {
-      renderTodo(change.doc);
+      if ($(".selected").attr("id") !== "show-done-btn") {
+        renderTodo(change.doc);
+      }
     }
   });
 });
